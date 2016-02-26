@@ -1,5 +1,5 @@
 {
-  "name": "splunk_viz_builder",
+  "name": "splunk_viz_tasks",
   "version": "1.0.0",
   "main": "splunk_viz_tasks.js",
   "author": "Splunk",

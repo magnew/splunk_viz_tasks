@@ -13,14 +13,14 @@ var splunkVizBuilder = {
             return false;
         }
         return {
-            getAppPaths: function() {
+            _getAppPaths: function() {
                 return {
                     appRoot: appRoot,
                     vizPath: path.join(appRoot, 'appserver', 'static', 'visualizations')
                 }
             },
-            getVizDirNames: function(){
-                var appPaths = this.getAppPaths();
+            _getVizDirNames: function(){
+                var appPaths = this._getAppPaths();
                 var visualizationDirectories = fs.readdirSync(appPaths.vizPath).filter(function(file) {
                     return fs.statSync(path.join(appPaths.vizPath, file)).isDirectory();
                 });
@@ -28,7 +28,7 @@ var splunkVizBuilder = {
             },
             listVisualizations: function() {
                 console.log('Visualization packages found:');
-                var visualizations = this.getVizDirNames();
+                var visualizations = this._getVizDirNames();
                 _.each(visualizations, function(viz){
                     console.log('-',viz);
                 });
@@ -36,7 +36,7 @@ var splunkVizBuilder = {
             buildVisualizations: function() {
                 console.log('Starting at root:', appRoot);
 
-                var visualizationDirectories = this.getVizDirNames()
+                var visualizationDirectories = this._getVizDirNames()
 
                 _.each(visualizationDirectories, function(vizDir){
                     console.log('\n');
@@ -66,8 +66,8 @@ var splunkVizBuilder = {
     },
     getSourceTasks: function() {
         return {
-            listDir: function(){
-                console.log('list');
+            listAppDirectories: function(){
+                console.log('listssss');
             }
         }
     }    

@@ -12,6 +12,15 @@ var argv = yargs.usage('$0 command')
             console.log('This does not appear to be an app directory, bailing');
         }
     })
+    .command('build_all_viz', 'lists visualization apps', function(yargs){
+        var sourceTasks = vizBuilder.getSourceTasks();
+        if(sourceTasks){
+            sourceTasks.buildAllVisualizations();
+        }
+        else {
+            console.log('This does not appear to be an app directory, bailing');
+        }
+    })
     // App commands
     .command('list_viz', 'lists app visualization packages', function(yargs){
         var appTasks = vizBuilder.getAppTasks();

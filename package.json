@@ -1,0 +1,12 @@
+{
+  "name": "splunk_viz_builder",
+  "version": "1.0.0",
+  "main": "splunk_viz_tasks.js",
+  "author": "Splunk",
+  "license": "MIT",
+  "dependencies": {
+    "shelljs": "^0.6.0",
+    "underscore": "^1.8.3",
+    "yargs": "^4.2.0"
+  }
+}

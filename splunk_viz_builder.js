@@ -5,6 +5,7 @@ var shell = require('shelljs');
 
 var splunkVizBuilder = {
 
+    // App-level tasks
     _getVisualizationsPath: function(appRootPath) {
         return path.join(appRootPath, 'appserver', 'static', 'visualizations')
     },
@@ -60,9 +61,11 @@ var splunkVizBuilder = {
 
         console.log('Done building visualizations in app');
     },
-    _getAppDirNames: function() {
+
+    // Source-level tasks
+    _getAppDirNames: function(sourceRootPath) {
         // Filter for directories containing an appserver
-        var appDirectories = fs.readdirSync(sourceRoot).filter(function(file) {
+        var appDirectories = fs.readdirSync(sourceRootPath).filter(function(file) {
             if (fs.statSync(file).isDirectory()) {
                 if (fs.existsSync(path.join(file, 'appserver'))) {
                     return true;
@@ -71,19 +74,19 @@ var splunkVizBuilder = {
         });
         return appDirectories
     },
-    listAppDirectories: function() {
+    listAppDirectories: function(sourceRootPath) {
         console.log('Apps found:');
-        var apps = this._getAppDirNames();
+        var apps = this._getAppDirNames(sourceRootPath);
         _.each(apps, function(appName) {
             console.log('-', appName);
         });
     },
-    buildAllVisualizations: function() {
+    buildAllVisualizations: function(sourceRootPath) {
         console.log('Building all visualizations');
 
-        var appDirectories = this._getAppDirNames();
+        var appDirectories = this._getAppDirNames(sourceRootPath);
         _.each(appDirectories, function(appName){
-            process.chdir(path.join(sourceRoot, appName));
+            process.chdir(path.join(sourceRootPath, appName));
             
             console.log('Checking app:', process.cwd());
             if(!fs.existsSync('./package.json')){
@@ -95,7 +98,7 @@ var splunkVizBuilder = {
             shell.exec('npm install');
             shell.exec('npm run build_viz');
 
-            process.chdir(sourceRoot);
+            process.chdir(sourceRootPath);
         }); 
     },
     buildApp: function(appName) {
@@ -139,11 +142,21 @@ var splunkVizBuilder = {
     // Source tasks assume they are at the root of a tree containing apps
     getSourceTasks: function() {
         var sourceRoot = process.cwd();
+
+        var that = this;
         return {
-            listAppDirectories: this.listAppDirectories,
-            buildAllVisualizations: this.buildAllVisualizations,
-            buildApp: this.buildApp,
-            buildAllApps: this.buildAllApps
+            listAppDirectories: function() {
+                return that.listAppDirectories(sourceRoot); 
+            },
+            buildAllVisualizations: function() {
+                return that.buildAllVisualizations(sourceRoot);
+            },
+            buildApp: function() {
+
+            },
+            buildAllApps: function() {
+
+            }
         }
     }    
 };

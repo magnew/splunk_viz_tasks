@@ -9,7 +9,7 @@ var argv = yargs.usage('$0 command')
             sourceTasks.listAppDirectories();
         }
         else {
-            console.log('This does not appear to be an app directory, bailing');
+            console.log('No splunk app source found, bailing');
         }
     })
     .command('build_all_viz', 'lists visualization apps', function(yargs){
@@ -18,23 +18,58 @@ var argv = yargs.usage('$0 command')
             sourceTasks.buildAllVisualizations();
         }
         else {
-            console.log('This does not appear to be an app directory, bailing');
+            console.log('No splunk app source found, bailing');
+        }
+    })
+    .command('build_all_apps', 'builds a splunk app package for each app', function(yargs){
+        var sourceTasks = vizBuilder.getSourceTasks();
+        if(sourceTasks){
+            sourceTasks.buildAllApps();
+        }
+        else {
+            console.log('No splunk app source found, bailing');
+        }
+    })
+    .command('build_app', 'builds a splunk app package', function(yargs){
+        var sourceTasks = vizBuilder.getSourceTasks();
+        if(sourceTasks){
+            var appName = yargs.argv._[1]
+            sourceTasks.buildApp(appName);
+        }
+        else {
+            console.log('No splunk app source found, bailing');
         }
     })
     // App commands
-    .command('list_viz', 'lists app visualization packages', function(yargs){
+    .command('list_app_viz', 'lists app visualization packages', function(yargs){
         var appTasks = vizBuilder.getAppTasks();
         if(appTasks){
-            appTasks.listVisualizations();
+            appTasks.listAppVisualizations();
         }
         else {
             console.log('This does not appear to be an app directory, bailing');
         }
     })
-    .command('build_viz', 'builds app visualizations', function(yargs){
+    .command('build_app_viz', 'builds app visualizations by name', function(yargs){
+        var appTasks = vizBuilder.getAppTasks();
+        if(appTasks) {
+            var vizName = yargs.argv._[1];
+            if(vizName){
+                appTasks.buildAppVisualization(vizName);
+            }
+            else {
+                console.log('No visualization specified, building all visualizations in app');
+                appTasks.buildAllAppVisualizations()
+            }
+        }
+        else {
+            console.log('This does not appear to be an app directory, bailing');
+        }
+    })
+    .command('build_all_app_viz', 'builds app visualizations', function(yargs){
         var appTasks = vizBuilder.getAppTasks();
         if(appTasks){
-            appTasks.buildVisualizations();
+            appTasks.buildAllAppVisualizations();
         }
         else {
             console.log('This does not appear to be an app directory, bailing');

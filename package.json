@@ -8,5 +8,8 @@
     "shelljs": "^0.6.0",
     "underscore": "^1.8.3",
     "yargs": "^4.2.0"
+  },
+  "devDependencies": {
+    "fs-extra": "^0.26.5"
   }
 }

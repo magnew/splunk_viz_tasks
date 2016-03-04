@@ -1,7 +1,8 @@
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 var _ = require('underscore');
 var shell = require('shelljs');
+var ncp = require('ncp');
 
 var splunkVizBuilder = {
 
@@ -25,6 +26,8 @@ var splunkVizBuilder = {
         });
     },
     buildAppVisualization: function (appRootPath, vizName){
+        process.chdir(appRootPath);
+
         if (!_.contains(this._getVizDirNames(appRootPath), vizName)){
             console.log('Error: visualization ' + vizName + ' not found in app');
             return;
@@ -101,17 +104,78 @@ var splunkVizBuilder = {
             process.chdir(sourceRootPath);
         }); 
     },
-    buildApp: function(appName) {
-        var appDirectories = this._getAppDirNames();
+    buildApp: function(sourceRootPath, appName) {
+        // Remove trailing '/'
+        if(appName.substr(-1) === '/') {
+            appName = appName.substr(0, appName.length - 1);
+        }
+
+        // Check app exists
+        var appDirectories = this._getAppDirNames(sourceRootPath);
         if(!_.contains(appDirectories, appName)){
             console.log('Error: no app directory found for: ' + appName);
             return false;
         }
         console.log('Building app: ' + appName);
 
-    },
-    buildAllApps: function() {
+        var appSourcePath = path.join(sourceRootPath, appName);
 
+        // Build app viz
+        this.buildAllAppVisualizations(appSourcePath);
+        process.chdir(sourceRootPath);
+
+        // Create built directory if it doesn't exist
+        var builtDirPath = path.join(sourceRootPath, 'built_apps');
+        if(!fs.existsSync(builtDirPath)) {
+            console.log('No build directory found, creating ' + builtDirPath);
+            fs.mkdir(builtDirPath);
+        }
+
+        // Create a temp directory if it doesn't exist
+        var tempDirPath = path.join(sourceRootPath, 'build_temp');
+        if(!fs.existsSync(tempDirPath)) {
+            console.log('Create temp app directory: ' + tempDirPath);
+            fs.mkdir(tempDirPath);
+        }
+
+        console.log('Delete previous temp');
+        fs.emptyDirSync(tempDirPath);
+        
+        console.log('Copy app');
+        var tempAppPath = path.join(tempDirPath, appName);
+        fs.mkdirSync(tempAppPath);
+        fs.copySync(appSourcePath, tempAppPath);
+
+        var packageName = appName + '.spl';
+        var packagePath = path.join(tempDirPath, packageName)
+
+        process.chdir(tempDirPath);
+        console.log('Package: ' + packageName);
+        shell.exec(
+            "COPYFILE_DISABLE=1 tar cvfz " +
+            packageName +
+            " --exclude='metadata/local.meta'" +
+            " --exclude='.*'" + 
+            " --exclude='*/node_modules' " + 
+            appName
+        );
+        process.chdir(sourceRootPath);
+
+        console.log('Copy package to ' + builtDirPath);
+        fs.copySync(packagePath, path.join(builtDirPath, packageName));
+
+        fs.removeSync(tempDirPath);
+    },
+
+    buildAllApps: function(sourceRootPath) {   
+        console.log('Building all apps');
+
+        var appDirectories = this._getAppDirNames(sourceRootPath);
+        _.each(appDirectories, function(appName){
+            this.buildApp(sourceRootPath, appName);
+        }, this);
+
+        process.chdir(sourceRootPath);
     },
 
     // App tasks assume app context
@@ -151,11 +215,11 @@ var splunkVizBuilder = {
             buildAllVisualizations: function() {
                 return that.buildAllVisualizations(sourceRoot);
             },
-            buildApp: function() {
-
+            buildApp: function(appName) {
+                return that.buildApp(sourceRoot, appName);
             },
             buildAllApps: function() {
-
+                return that.buildAllApps(sourceRoot);
             }
         }
     }    

@@ -32,9 +32,14 @@ var argv = yargs.usage('$0 command')
     })
     .command('build_app', 'builds a splunk app package', function(yargs){
         var sourceTasks = vizBuilder.getSourceTasks();
-        if(sourceTasks){
+        if(sourceTasks) {
             var appName = yargs.argv._[1]
-            sourceTasks.buildApp(appName);
+            if(appName) {
+                sourceTasks.buildApp(appName);
+            }
+            else {
+                console.log('Error: must specify an app');
+            }
         }
         else {
             console.log('No splunk app source found, bailing');

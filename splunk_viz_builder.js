@@ -156,7 +156,8 @@ var splunkVizBuilder = {
             packageName +
             " --exclude='metadata/local.meta'" +
             " --exclude='.*'" + 
-            " --exclude='*/node_modules' " + 
+            " --exclude='*/node_modules' " +
+            " --exclude='*/local' " + 
             appName
         );
         process.chdir(sourceRootPath);

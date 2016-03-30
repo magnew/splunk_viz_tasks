@@ -154,8 +154,8 @@ var splunkVizBuilder = {
         shell.exec(
             "COPYFILE_DISABLE=1 tar cvfz " +
             packageName +
-            " --exclude='metadata/local.meta'" +
-            " --exclude='.*'" + 
+            " --exclude='metadata/local.meta' " +
+            " --exclude='.*' " + 
             " --exclude='*/node_modules' " +
             " --exclude='*/local' " + 
             appName

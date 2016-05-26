@@ -159,6 +159,8 @@ var splunkVizBuilder = {
             " --exclude='.*' " + 
             " --exclude='*/node_modules' " +
             " --exclude='*/local' " + 
+            " --exclude='*/npm-debug.log' " + 
+            " --exclude='*/visualization.js.map' "
             appName
         );
         process.chdir(sourceRootPath);
